@@ -1,46 +1,37 @@
-var createError = require('http-errors');
-var express = require('express');
-var path = require('path');
-var cookieParser = require('cookie-parser');
-var logger = require('morgan');
+var Twit = require('twit')
+var config = require('./nope/config.json')
 
-var indexRouter = require('./routes/index');
-var usersRouter = require('./routes/users');
-var twitterRouter = require('./routes/twitter');
-var cors = require('cors');
-var app = express();
+const consumer_key =        config.A
+const consumer_secret =     config.B
+const access_token =        config.C
+const access_token_secret = config.D
 
-app.use(cors());
-// view engine setup
-app.set('views', path.join(__dirname, 'views'));
-app.set('view engine', 'jade');
-
-app.use(logger('dev'));
-app.use(express.json());
-app.use(express.urlencoded({ extended: false }));
-app.use(cookieParser());
-app.use(express.static(path.join(__dirname, 'public')));
-
-app.use('/', indexRouter);
-app.use('/users', usersRouter);
-// New added 
-app.use('/twitter', twitterRouter);
-
-
-// catch 404 and forward to error handler
-app.use(function(req, res, next) {
-  next(createError(404));
+var T = new Twit({
+  consumer_key:         consumer_key,
+  consumer_secret:      consumer_secret,
+  access_token:         access_token,
+  access_token_secret:  access_token_secret,
 });
 
-// error handler
-app.use(function(err, req, res, next) {
-  // set locals, only providing error in development
-  res.locals.message = err.message;
-  res.locals.error = req.app.get('env') === 'development' ? err : {};
-
-  // render the error page
-  res.status(err.status || 500);
-  res.render('error');
+var http = require('http');
+var server = http.createServer(function(req, res) {
+  res.writeHead(200, {'Access-Control-Allow-Origin': '*', 'Content-Type': 'application/json'});
+  T.get('search/tweets', { q: '#AnimalCrossing turnip', result_type: "recent", count: 100,}, 
+  (err, data, response) => {
+    let tweets = data.statuses
+      .filter(tweet => !tweet.retweeted_status) // No RTs
+      .filter(tweet => !tweet.text.includes("@"))
+      .map((tweet, i, a ) => {
+        return { // Gets tweet's attributes we want
+          id   : tweet.id_str,
+          screen_name : tweet.user.screen_name,
+          text : tweet.text,
+          entities : tweet.entities
+        }
+      })
+    if(tweets.length > 10) {tweets.length = 10}
+    tweets.map(tw => console.log(tw))
+    res.end(JSON.stringify(tweets));
+  })
 });
-
-module.exports = app;
+server.listen(9999);
