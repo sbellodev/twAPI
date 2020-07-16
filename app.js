@@ -26,9 +26,9 @@ var server = http.createServer(function(req, res) {
       .filter(tweet => !tweet.text.toLowerCase().includes("reply"))
       .map((tweet, i, a ) => {
         return { // Gets tweet's attributes we want
-          alltweet : tweet, 
           id   : tweet.id_str,
           screen_name : tweet.user.screen_name,
+          profile_image : tweet.user.profile_image_url,
           text : tweet.text,
           entities : tweet.entities
         }
