@@ -15,7 +15,7 @@ var T = new Twit({
 
 var http = require('http');
 var server = http.createServer(function(req, res) {
-  res.writeHead(200, {'Access-Control-Allow-Origin': '*', 'Content-Type': 'application/json'});
+  res.writeHead(200, {'Access-Control-Allow-Origin': '*', 'Content-Type': 'application/json', 'Cache-Control' : 'max-age=60'});
   T.get('search/tweets', { q: '#AnimalCrossing turnip', result_type: "recent", count: 120,}, 
   (err, data, response) => {
     let tweets = data.statuses
