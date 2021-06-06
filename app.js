@@ -16,7 +16,7 @@ var T = new Twit({
 var http = require('http');
 var server = http.createServer(function(req, res) {
   res.writeHead(200, {'Access-Control-Allow-Origin': '*', 'Content-Type': 'application/json', 'Cache-Control' : 'max-age=60'});
-  T.get('search/tweets', { tweet_mode: 'extended', q: '#AnimalCrossing turnip', result_type: "recent", count: 200,}, 
+  T.get('search/tweets', { tweet_mode: 'extended', q: '#AnimalCrossing turnip', result_type: "recent", count: 100}, 
   (err, data, response) => {
     let tweets = data.statuses
       .filter(tweet => !tweet.retweeted_status) // No RTs
@@ -33,7 +33,7 @@ var server = http.createServer(function(req, res) {
           entities : tweet.entities
         }
       })
-    if(tweets.length > 25) {tweets.length = 25}
+    //if(tweets.length > 25) {tweets.length = 25}
     tweets.map(tw => console.log(tw))
     res.end(JSON.stringify(tweets));
   })
