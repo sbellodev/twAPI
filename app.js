@@ -16,7 +16,7 @@ var T = new Twit({
 var http = require('http');
 var server = http.createServer(function(req, res) {
   res.writeHead(200, {'Access-Control-Allow-Origin': '*', 'Content-Type': 'application/json', 'Cache-Control' : 'max-age=60'});
-  T.get('search/tweets', { tweet_mode: 'extended', q: '#AnimalCrossing turnip', result_type: "recent", count: 100}, 
+  T.get('search/tweets', { tweet_mode: 'extended', q: '#AnimalCrossing turnip', result_type: "recent", count: 70}, 
   (err, data, response) => {
     let tweets = data.statuses
       .filter(tweet => !tweet.retweeted_status) // No RTs
