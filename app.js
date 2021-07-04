@@ -13,6 +13,7 @@ var T = new Twit({
   access_token_secret:  access_token_secret,
 });
 
+const PORT = process.env.PORT || 3000
 var http = require('http');
 var server = http.createServer(function(req, res) {
   res.writeHead(200, {'Access-Control-Allow-Origin': '*', 'Content-Type': 'application/json', 'Cache-Control' : 'max-age=60'});
@@ -38,4 +39,4 @@ var server = http.createServer(function(req, res) {
     res.end(JSON.stringify(tweets));
   })
 });
-server.listen();
+server.listen(PORT);
