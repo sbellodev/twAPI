@@ -17,14 +17,14 @@ const PORT = process.env.PORT || 3000
 var http = require('http');
 var server = http.createServer(function(req, res) {
   res.writeHead(200, {'Access-Control-Allow-Origin': '*', 'Content-Type': 'application/json', 'Cache-Control' : 'max-age=60'});
-  T.get('search/tweets', { tweet_mode: 'extended', q: '#AnimalCrossing turnip', result_type: "recent", count: 70}, 
+  T.get('search/tweets', { tweet_mode: 'extended', q: '#AnimalCrossing turnip -DodocodesN -TurnipsExchange -@ -rt -rts -appreciated -like -reply -filter:nativeretweets', result_type: "recent", count: 20}, 
   (err, data, response) => {
     let tweets = data.statuses
-      .filter(tweet => !tweet.retweeted_status) // No RTs
-      .filter(tweet => !tweet.full_text.includes("@"))
-      .filter(tweet => !tweet.full_text.toLowerCase().includes("rt"))
-      .filter(tweet => !tweet.full_text.toLowerCase().includes("like"))
-      .filter(tweet => !tweet.full_text.toLowerCase().includes("reply"))
+      //.filter(tweet => !tweet.retweeted_status) // No RTs
+      //.filter(tweet => !tweet.full_text.includes("@"))
+      // .filter(tweet => !tweet.full_text.toLowerCase().includes("rt"))
+      // .filter(tweet => !tweet.full_text.toLowerCase().includes("like"))
+      // .filter(tweet => !tweet.full_text.toLowerCase().includes("reply"))
       .map((tweet, i, a ) => {
         return { // Gets tweet's attributes we want
           id   : tweet.id_str,
