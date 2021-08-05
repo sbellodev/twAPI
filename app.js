@@ -13,7 +13,7 @@ var T = new Twit({
   access_token_secret:  access_token_secret,
 });
 
-const PORT = process.env.PORT || 3000
+const PORT = process.env.PORT || 5000
 var http = require('http');
 var server = http.createServer(function(req, res) {
   res.writeHead(200, {'Access-Control-Allow-Origin': '*', 'Content-Type': 'application/json', 'Cache-Control' : 'max-age=60'});
@@ -27,11 +27,12 @@ var server = http.createServer(function(req, res) {
       // .filter(tweet => !tweet.full_text.toLowerCase().includes("reply"))
       .map((tweet, i, a ) => {
         return { // Gets tweet's attributes we want
-          id   : tweet.id_str,
-          screen_name : tweet.user.screen_name,
+          id            : tweet.id_str,
+          screen_name   : tweet.user.screen_name,
           profile_image : tweet.user.profile_image_url,
-          text : tweet.full_text,
-          entities : tweet.entities
+          text          : tweet.full_text,
+          entities      : tweet.entities,
+          date          : tweet.created_at
         }
       })
     //if(tweets.length > 25) {tweets.length = 25}
