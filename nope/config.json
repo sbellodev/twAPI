@@ -1,6 +1,6 @@
 {
-    "A" : "DErbyHoTeAk1OSHTDTdjBidua",
-    "B" : "FDLatxSp9r2tiSpbeGqwPP0b6HVDoYTZkYjpzYVZUpyNCzx7Yt",
-    "C" : "1090069576744873984-xMKtCm5IRlsRqPpiwpLpAXJE0pRPoH" ,
-    "D" : "dKQzR3Ktid5DwghcxiKo20aTwhnpXsapgnc9MEmx5gJrH"
+    "A" : ${{ secrets.ACCESS_TOKEN }},
+    "B" : ${{ secrets.ACCESS_SECRET_TOKEN }},
+    "C" : ${{ secrets.API_KEY }},
+    "D" : ${{ secrets.API_SECRET_KEY }}
 }
