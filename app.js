@@ -1,43 +1,72 @@
-var Twit = require('twit')
-var config = require('./nope/config.json')
+const http = require('http');
+const https = require('https');
+const url = require('url');
+const cheerio = require('cheerio');
+const cors = require('cors'); // Import the cors library
+const corsOptions = {
+  origin: '*', // You can specify specific origins here instead of '*'
+};
+const server = http.createServer((req, res) => {
+  cors(corsOptions)(req, res, () => {
+  // Parse the request URL
+  const parsedUrl = url.parse(req.url, true);
+  const query = parsedUrl.query;
+  const symbol = query.symbol;
 
-const consumer_key =        config.A
-const consumer_secret =     config.B
-const access_token =        config.C
-const access_token_secret = config.D
+  // Check if the symbol parameter is provided
+  if (!symbol) {
+    res.statusCode = 400;
+    res.setHeader('Content-Type', 'application/json');
+    res.end(JSON.stringify({ error: 'Symbol parameter is required' }));
+    return;
+  }
 
-var T = new Twit({
-  consumer_key:         consumer_key,
-  consumer_secret:      consumer_secret,
-  access_token:         access_token,
-  access_token_secret:  access_token_secret,
-});
+  // Construct the Yahoo Finance URL
+  const yahooFinanceUrl = `https://finance.yahoo.com/quote/${symbol}`;
 
-const PORT = process.env.PORT || 5000
-var http = require('http');
-var server = http.createServer(function(req, res) {
-  res.writeHead(200, {'Access-Control-Allow-Origin': '*', 'Content-Type': 'application/json', 'Cache-Control' : 'max-age=60'});
-  T.get('search/tweets', { tweet_mode: 'extended', q: '#AnimalCrossing turnip -DodocodesN -TurnipsExchange -@ -rt -rts -appreciated -like -reply -filter:nativeretweets', result_type: "recent", count: 20}, 
-  (err, data, response) => {
-    let tweets = data.statuses
-      //.filter(tweet => !tweet.retweeted_status) // No RTs
-      //.filter(tweet => !tweet.full_text.includes("@"))
-      // .filter(tweet => !tweet.full_text.toLowerCase().includes("rt"))
-      // .filter(tweet => !tweet.full_text.toLowerCase().includes("like"))
-      // .filter(tweet => !tweet.full_text.toLowerCase().includes("reply"))
-      .map((tweet, i, a ) => {
-        return { // Gets tweet's attributes we want
-          id            : tweet.id_str,
-          screen_name   : tweet.user.screen_name,
-          profile_image : tweet.user.profile_image_url,
-          text          : tweet.full_text,
-          entities      : tweet.entities,
-          date          : tweet.created_at
-        }
-      })
-    //if(tweets.length > 25) {tweets.length = 25}
-    tweets.map(tw => console.log(tw))
-    res.end(JSON.stringify(tweets));
+  // Make a request to Yahoo Finance
+  function fetchData(){
+    https.get(yahooFinanceUrl, (yahooRes) => {
+      let data = '';
+      
+      yahooRes.on('data', (chunk) => {
+        data += chunk;
+      });
+  
+      yahooRes.on('end', () => {
+        // Load the HTML content using cheerio
+        const $ = cheerio.load(data);
+  
+        // Extract the stock name and price from the HTML
+        const stockName = $('h1[data-reactid="7"]').text();
+        const stockPrice = $('td[data-test="OPEN-value"]').text();
+        const previousClose = $('td[data-test="PREV_CLOSE-value"]').text();
+        const marketCap = $('td[data-test="MARKET_CAP-value"]').text();
+        const volume = $('td[data-test="TD_VOLUME-value"]').text();
+        
+        // Return the extracted data as JSON
+        res.statusCode = 200;
+        res.setHeader('Content-Type', 'application/json');
+        res.end(JSON.stringify({
+          symbol: symbol,
+          name: stockName,
+          price: stockPrice,
+          prevClose: previousClose,
+          marketCap: marketCap,
+          volume: volume
+        }));
+      });
+    }).on('error', (error) => {
+      res.statusCode = 500;
+      res.setHeader('Content-Type', 'application/json');
+      res.end(JSON.stringify({ error: 'An error occurred while fetching data from Yahoo Finance' }));
+    });
+  }
+  fetchData()
   })
 });
-server.listen(PORT);
+
+const port = 3000;
+server.listen(port, () => {
+  console.log(`Server is listening on port ${port}`);
+});
