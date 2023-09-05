@@ -37,23 +37,53 @@ const server = http.createServer((req, res) => {
         // Load the HTML content using cheerio
         const $ = cheerio.load(data);
   
+        const extractedData = {};
+
+// Iterate through all the <td> elements and extract their content
+        $('td').each((index, element) => {
+          const propertyName = $(element).text(); // Assuming the text inside the <td> is the property name
+          const nextElement = $(element).next(); // Get the next sibling element (the corresponding value)
+          const propertyValue = nextElement.text().trim(); // Get the value from the next element and trim whitespace
+      
+          // Check if the property name is not empty and is not equal to the value
+          if (propertyValue != "" ) {
+              extractedData[propertyName] = propertyValue;
+          }
+        });
+
+        // Now you have all the scraped data in the 'extractedData' object
+        console.log(extractedData);
+
         // Extract the stock name and price from the HTML
-        const stockName = $('h1[data-reactid="7"]').text();
-        const stockPrice = $('td[data-test="OPEN-value"]').text();
-        const previousClose = $('td[data-test="PREV_CLOSE-value"]').text();
-        const marketCap = $('td[data-test="MARKET_CAP-value"]').text();
-        const volume = $('td[data-test="TD_VOLUME-value"]').text();
-        
+        // const stockName = $('h1[data-reactid="7"]').text();
+        // const stockPrice = $('td[data-test="OPEN-value"]').text();
+        // const previousClose = $('td[data-test="PREV_CLOSE-value"]').text();
+        // const marketCap = $('td[data-test="MARKET_CAP-value"]').text();
+        // const volume = $('td[data-test="TD_VOLUME-value"]').text();
+        // // Extract additional properties
+        // const sixMonthInstitutionalOwnership = $('td:contains("6-Month Institutional Ownership")').next().text();
+        // const sixMonthAverageVolume = $('td:contains("6-Month Average Volume")').next().text();
+        // const percentageToValueBlend = $('td:contains("Percentage to Value Blend")').next().text();
+        // const fiftyTwoWeekHighPrice = $('td.Fw(500).Ta(end).Pstart(10px).Miw(60px)').text();
+        //const fiftyTwoWeekLowPrice = $('td:contains("52-Week Low Price")').next().text();
+
+        //console.log(fiftyTwoWeekHighPrice)
         // Return the extracted data as JSON
         res.statusCode = 200;
         res.setHeader('Content-Type', 'application/json');
         res.end(JSON.stringify({
-          symbol: symbol,
-          name: stockName,
-          price: stockPrice,
-          prevClose: previousClose,
-          marketCap: marketCap,
-          volume: volume
+          result : extractedData
+          // symbol: symbol,
+          // name: stockName,
+          // price: stockPrice,
+          // prevClose: previousClose,
+          // marketCap: marketCap,
+          // volume: volume,
+          // sixMonthInstitutionalOwnership: sixMonthInstitutionalOwnership,
+          // sixMonthAverageVolume: sixMonthAverageVolume,
+          // percentageToValueBlend: percentageToValueBlend,
+          // fiftyTwoWeekHighPrice: fiftyTwoWeekHighPrice,
+          // fiftyTwoWeekLowPrice: fiftyTwoWeekLowPricez
         }));
       });
     }).on('error', (error) => {
